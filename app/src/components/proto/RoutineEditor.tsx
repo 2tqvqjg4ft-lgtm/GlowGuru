@@ -276,10 +276,12 @@ function StepEditor({
   const [replacing, setReplacing] = usePersistentState(`routine:${step.id}:replacing`, false);
   const [editing, setEditing] = usePersistentState(`routine:${step.id}:editing`, false);
   const [draft, setDraft] = usePersistentState<Stage[]>(`routine:${step.id}:stages`, step.stages);
+  const [startDateDraft, setStartDateDraft] = usePersistentState<string>(`routine:${step.id}:start-date`, step.startDate || iso(new Date()));
   const current = stageOn(step, new Date());
 
   const saveSchedule = () => {
-    onChange({ stages: draft, startDate: iso(new Date()) }, `«${p?.name}»: новый график — ${describeStages(draft)}.`);
+    const startDate = startDateDraft || step.startDate || iso(new Date());
+    onChange({ stages: draft, startDate }, `«${p?.name}»: новый график с ${startDate.split("-").reverse().join(".")} — ${describeStages(draft)}.`);
     setEditing(false);
     toast.success("График сохранён, изменение записано в историю");
   };
@@ -321,6 +323,15 @@ function StepEditor({
       {editing && (
         <div className="mt-3 space-y-2 rounded-2xl bg-accent/25 p-3 animate-scale-in">
           <p className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Этапы введения</p>
+          <div className="rounded-xl bg-card/70 p-2.5">
+            <label className="mb-1.5 block text-[11px] font-medium text-muted-foreground">Первая дата применения</label>
+            <Input
+              type="date"
+              value={startDateDraft}
+              onChange={(e) => setStartDateDraft(e.target.value)}
+              className="h-9 w-full text-xs"
+            />
+          </div>
           {draft.map((st, i) => (
             <div key={i} className="flex flex-wrap items-center gap-2">
               <span className="w-5 text-xs text-muted-foreground">{i + 1}.</span>
@@ -356,9 +367,9 @@ function StepEditor({
               <Plus className="h-3.5 w-3.5" /> Этап
             </Button>
             <Button size="sm" onClick={saveSchedule}>Сохранить график</Button>
-            <Button size="sm" variant="ghost" onClick={() => { setDraft(step.stages); setEditing(false); }}>Отмена</Button>
+            <Button size="sm" variant="ghost" onClick={() => { setDraft(step.stages); setStartDateDraft(step.startDate || iso(new Date())); setEditing(false); }}>Отмена</Button>
           </div>
-          <p className="text-[11px] text-muted-foreground">Пустое поле недель — этап без ограничения. График начнётся с сегодняшнего дня.</p>
+          <p className="text-[11px] text-muted-foreground">Пустое поле недель — этап без ограничения. От выбранной первой даты приложение само рассчитывает следующие применения по этапам.</p>
         </div>
       )}
 
@@ -441,7 +452,7 @@ function StepEditor({
           Альтернативы{alts.length ? ` · ${alts.length}` : ""}
         </Button>
         {p?.active && !extra && (
-          <Button size="sm" variant="ghost" className="h-9 rounded-full bg-muted/60 px-3.5 text-xs" onClick={() => { setDraft(step.stages); setEditing(true); }}>
+          <Button size="sm" variant="ghost" className="h-9 rounded-full bg-muted/60 px-3.5 text-xs" onClick={() => { setDraft(step.stages); setStartDateDraft(step.startDate || iso(new Date())); setEditing(true); }}>
             Частота
           </Button>
         )}

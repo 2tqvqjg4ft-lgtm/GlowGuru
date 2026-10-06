@@ -1,0 +1,302 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-sand: var(--sand);
+  --color-sand-foreground: var(--sand-foreground);
+  --color-sky: var(--sky);
+  --color-sky-foreground: var(--sky-foreground);
+  --color-ink: var(--ink);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --shadow-soft: 0 20px 52px -32px oklch(0.2 0.07 258 / 0.34);
+  --shadow-panel: 0 1px 2px oklch(0.2 0.06 258 / 0.04), 0 10px 28px -16px oklch(0.2 0.07 258 / 0.2);
+  --shadow-lift: 0 2px 4px oklch(0.2 0.06 258 / 0.05), 0 18px 40px -18px oklch(0.2 0.08 258 / 0.32);
+  --shadow-float: 0 1px 1px oklch(0.2 0.06 258 / 0.025), 0 8px 18px -9px oklch(0.2 0.07 258 / 0.09), 0 24px 52px -28px oklch(0.2 0.08 258 / 0.2);
+  --shadow-glow: 0 18px 42px -20px oklch(0.31 0.12 258 / 0.48);
+  --font-brand: "Manrope", system-ui, sans-serif;
+  --animate-fade-up: fade-up 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-scale-in: scale-in 0.22s ease-out both;
+  --color-surface: var(--surface);
+  --color-glass: var(--glass);
+}
+
+@keyframes fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes scale-in { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: none; } }
+
+:root {
+  --radius: 1.125rem;
+  /* GLOWGURU palette */
+  --background: oklch(0.988 0.003 255);
+  --foreground: oklch(0.235 0.055 258);
+  --ink: oklch(0.235 0.055 258);
+  --card: oklch(0.998 0.001 255);
+  --surface: oklch(0.998 0.001 255 / 0.96);
+  --glass: oklch(0.99 0.003 255 / 0.82);
+  --card-foreground: oklch(0.235 0.055 258);
+  --popover: oklch(0.998 0.001 255);
+  --popover-foreground: oklch(0.235 0.055 258);
+  --primary: oklch(0.255 0.09 258);
+  --primary-foreground: oklch(0.985 0.004 255);
+  --secondary: oklch(0.39 0.145 258);
+  --secondary-foreground: oklch(0.985 0.004 255);
+  --muted: oklch(0.955 0.006 255);
+  --muted-foreground: oklch(0.51 0.025 258);
+  --accent: oklch(0.86 0.045 250);
+  --accent-foreground: oklch(0.235 0.055 258);
+  --sky: oklch(0.86 0.045 250);
+  --sky-foreground: oklch(0.235 0.055 258);
+  --sand: oklch(0.757 0.014 90);            /* #B8B4AA */
+  --sand-foreground: oklch(0.24 0.02 90);
+  --destructive: oklch(0.52 0.16 25);
+  --destructive-foreground: oklch(0.975 0.008 95);
+  --border: oklch(0.91 0.01 255);
+  --input: oklch(0.89 0.014 255);
+  --ring: oklch(0.39 0.145 258);
+  --chart-1: oklch(0.39 0.145 258);
+  --chart-2: oklch(0.86 0.045 250);
+  --chart-3: oklch(0.757 0.014 90);
+  --chart-4: oklch(0.255 0.09 258);
+  --chart-5: oklch(0.6 0.06 258);
+  --sidebar: oklch(0.255 0.09 258);
+  --sidebar-foreground: oklch(0.985 0.004 255);
+  --sidebar-primary: oklch(0.86 0.045 250);
+  --sidebar-primary-foreground: oklch(0.235 0.055 258);
+  --sidebar-accent: oklch(0.31 0.085 258);
+  --sidebar-accent-foreground: oklch(0.985 0.004 255);
+  --sidebar-border: oklch(0.36 0.07 258);
+  --sidebar-ring: oklch(0.86 0.045 250);
+}
+
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: #F8FAFC;
+    background-image:
+      radial-gradient(50rem 36rem at 110% -10%, oklch(0.95 0.03 300 / 0.55), transparent 62%),
+      radial-gradient(40rem 30rem at -15% 30%, oklch(0.96 0.025 240 / 0.6), transparent 64%),
+      radial-gradient(36rem 28rem at 80% 70%, oklch(0.97 0.02 10 / 0.45), transparent 66%);
+    background-attachment: fixed;
+    color: var(--color-foreground);
+  }
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 650;
+    letter-spacing: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+@utility eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+@utility panel {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+@utility surface {
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.97), oklch(0.992 0.004 250 / 0.94));
+  border: 1px solid oklch(0.93 0.015 250 / 0.7);
+  border-radius: 1.625rem;
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.9),
+    0 1px 2px oklch(0.3 0.06 258 / 0.03),
+    0 12px 28px -14px oklch(0.35 0.08 258 / 0.12),
+    0 30px 60px -36px oklch(0.4 0.09 258 / 0.16);
+}
+
+@utility hero-navy {
+  background:
+    radial-gradient(120% 90% at 100% 0%, oklch(0.5 0.11 255 / 0.55), transparent 60%),
+    radial-gradient(90% 80% at 0% 100%, oklch(0.22 0.07 262 / 0.7), transparent 70%),
+    linear-gradient(145deg, oklch(0.36 0.12 258), oklch(0.26 0.09 260));
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.18),
+    inset 0 0 0 1px oklch(1 0 0 / 0.07),
+    0 20px 44px -22px oklch(0.3 0.12 258 / 0.55),
+    0 0 60px -30px oklch(0.7 0.08 250 / 0.5);
+}
+
+@utility glass {
+  background-color: var(--color-glass);
+  border: 1px solid oklch(1 0 0 / 0.78);
+  backdrop-filter: blur(12px) saturate(1.2);
+}
+
+/* Точечный glassmorphism для мелких pill-вкладок, фильтров и второстепенных чипов.
+   Не применять к CTA, большим карточкам, карточкам средств, полям ввода и нижней навигации. */
+/* Liquid glass — сдержанное тонированное стекло: холодный прозрачный тон, тонкая кромка, мягкая глубина. */
+@utility glass-chip {
+  color: #162B4D;
+  border: 1px solid rgb(255 255 255 / 0.85);
+  background: rgb(255 255 255 / 0.62);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 18px -12px rgb(40 50 90 / 0.12);
+}
+
+/* Светлое полупрозрачное стекло поверх navy — без голубого свечения. */
+@utility glass-dark {
+  position: relative;
+  isolation: isolate;
+  color: var(--color-primary-foreground);
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.13) 0%, rgb(255 255 255 / 0.06) 100%);
+  backdrop-filter: blur(16px) saturate(1.1);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.05),
+    0 6px 16px -8px rgb(8 16 32 / 0.45);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 1px 20% auto 20%;
+    height: 36%;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0));
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+/* Активная капсула — тёмное тонированное navy-стекло. */
+@utility glass-active {
+  position: relative;
+  isolation: isolate;
+  color: var(--color-primary-foreground);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: linear-gradient(180deg, rgb(32 56 88 / 0.94) 0%, rgb(22 43 77 / 0.96) 55%, rgb(16 31 58 / 0.98) 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    inset 0 -1px 0 rgb(0 0 0 / 0.18),
+    0 1px 2px rgb(16 31 58 / 0.12),
+    0 8px 18px -10px rgb(16 31 58 / 0.5);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 1px 22% auto 22%;
+    height: 34%;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0));
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+@utility wordmark {
+  font-family: var(--font-brand);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+@utility pb-nav {
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+
+/* Светлая перламутровая hero-карточка */
+@utility hero-pearl {
+  background:
+    linear-gradient(135deg, #FFFFFF 0%, #F6F2FF 48%, #FBE7ED 100%);
+  border: 1px solid oklch(1 0 0 / 0.9);
+  box-shadow: 0 1px 2px oklch(0.3 0.06 258 / 0.03), 0 24px 50px -28px oklch(0.55 0.08 300 / 0.28);
+}
+
+/* Почти незаметное матовое стекло */
+@utility glass-soft {
+  background: rgb(255 255 255 / 0.62);
+  border: 1px solid rgb(255 255 255 / 0.85);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 18px -12px rgb(40 50 90 / 0.12);
+}
+
+@utility glow-lilac { background: radial-gradient(90% 70% at 100% 0%, oklch(0.95 0.03 300 / 0.7), transparent 70%), oklch(1 0 0 / 0.97); }
+@utility glow-ice { background: radial-gradient(90% 70% at 100% 0%, oklch(0.95 0.03 235 / 0.7), transparent 70%), oklch(1 0 0 / 0.97); }
+@utility glow-blush { background: radial-gradient(90% 70% at 100% 0%, oklch(0.96 0.025 15 / 0.7), transparent 70%), oklch(1 0 0 / 0.97); }
+@utility glow-pearl { background: radial-gradient(90% 70% at 100% 0%, oklch(0.96 0.015 90 / 0.6), transparent 70%), oklch(1 0 0 / 0.97); }
+
+:root { --lime: #9E87EB; --lavender: #B9A7F5; --lavender-soft: #E9E3FF; --navy: #06295C; --lilac: #D9D0F8; --blush: #F6C7D6; }
+@theme inline { --color-lime: var(--lime); --color-navy: var(--navy); --color-lilac: var(--lilac); --color-blush: var(--blush); }
+@utility glow-lime { background: radial-gradient(80% 60% at 100% 0%, rgba(185, 167, 245, 0.22), transparent 70%), oklch(1 0 0 / 0.97); }
+
+@keyframes cta-glow { 0%,100% { box-shadow: 0 6px 18px -8px oklch(0.35 0.1 260 / 0.45), 0 0 0 0 oklch(0.85 0.08 300 / 0); } 50% { box-shadow: 0 6px 18px -8px oklch(0.35 0.1 260 / 0.45), 0 0 0 6px oklch(0.85 0.08 300 / 0.35); } }
+@utility cta-glow { animation: cta-glow 2.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .cta-glow { animation: none; } }

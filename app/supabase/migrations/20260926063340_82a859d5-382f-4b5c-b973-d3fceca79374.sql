@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.guard_scheduled_push(), public.guard_reminder_notification(), public.on_plan_viewed_notify(), public.on_client_registered_notify() FROM PUBLIC, anon, authenticated;

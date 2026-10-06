@@ -1,0 +1,19 @@
+name: Verify GlowGuru app
+
+on:
+  push:
+    branches:
+      - fix/schedule-start-date
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - run: bun run test

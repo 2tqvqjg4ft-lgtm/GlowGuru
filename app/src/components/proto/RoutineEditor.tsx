@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { ProductPicker } from "./ProductPicker";
-import { ArrowDown, ArrowUp, Moon, Pause, Play, Plus, Repeat, Sparkles, Sun, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarDays, Moon, Pause, Play, Plus, Repeat, Sparkles, Sun, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   FREQ_LABEL,
+  appliesOn,
   describeExtra,
   describeStages,
   iso,
@@ -35,6 +36,26 @@ const STATUS: Record<NonNullable<Client["planStatus"]>, { label: string; tone: "
   published: { label: "Опубликовано", tone: "sky" },
   dirty: { label: "Есть неопубликованные изменения", tone: "sand" },
 };
+
+function schedulePreview(step: Step, startDate: string, stages: Stage[], horizonDays = 90) {
+  if (!startDate) return [] as string[];
+  const start = new Date(`${startDate}T00:00:00`);
+  if (Number.isNaN(start.getTime())) return [] as string[];
+
+  const previewStep: Step = { ...step, startDate, stages, paused: false };
+  const dates: string[] = [];
+  for (let offset = 0; offset <= horizonDays; offset++) {
+    const date = new Date(start);
+    date.setDate(start.getDate() + offset);
+    if (appliesOn(previewStep, date)) dates.push(iso(date));
+  }
+  return dates;
+}
+
+function humanDate(value: string) {
+  if (!value) return "Не выбрана";
+  return new Date(`${value}T00:00:00`).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+}
 
 export function PublishBar({ client }: { client: Client }) {
   const { saveDraft, publish } = useStore();
@@ -278,6 +299,13 @@ function StepEditor({
   const [draft, setDraft] = usePersistentState<Stage[]>(`routine:${step.id}:stages`, step.stages);
   const [startDateDraft, setStartDateDraft] = usePersistentState<string>(`routine:${step.id}:start-date`, step.startDate || iso(new Date()));
   const current = stageOn(step, new Date());
+  const previewDates = editing ? schedulePreview(step, startDateDraft, draft) : [];
+  const previewMonths = previewDates.reduce<Record<string, string[]>>((acc, value) => {
+    const date = new Date(`${value}T00:00:00`);
+    const key = date.toLocaleDateString("ru-RU", { month: "long", year: "numeric" });
+    (acc[key] ??= []).push(value);
+    return acc;
+  }, {});
 
   const saveSchedule = () => {
     const startDate = startDateDraft || step.startDate || iso(new Date());
@@ -323,14 +351,25 @@ function StepEditor({
       {editing && (
         <div className="mt-3 space-y-2 rounded-2xl bg-accent/25 p-3 animate-scale-in">
           <p className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Этапы введения</p>
-          <div className="rounded-xl bg-card/70 p-2.5">
-            <label className="mb-1.5 block text-[11px] font-medium text-muted-foreground">Первая дата применения</label>
-            <Input
-              type="date"
-              value={startDateDraft}
-              onChange={(e) => setStartDateDraft(e.target.value)}
-              className="h-9 w-full text-xs"
-            />
+          <div className="rounded-2xl bg-card/80 p-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Первая дата применения</p>
+                <p className="mt-1 text-sm font-semibold capitalize">{humanDate(startDateDraft)}</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">Эта дата станет точкой отсчёта всего графика.</p>
+              </div>
+              <label className="relative inline-flex h-9 cursor-pointer items-center gap-2 overflow-hidden rounded-full border border-input bg-background px-3 text-xs font-medium shadow-sm">
+                <CalendarDays className="h-3.5 w-3.5" />
+                Изменить дату
+                <input
+                  type="date"
+                  value={startDateDraft}
+                  onChange={(e) => setStartDateDraft(e.target.value)}
+                  aria-label="Первая дата применения"
+                  className="absolute inset-0 cursor-pointer opacity-0"
+                />
+              </label>
+            </div>
           </div>
           {draft.map((st, i) => (
             <div key={i} className="flex flex-wrap items-center gap-2">
@@ -369,7 +408,33 @@ function StepEditor({
             <Button size="sm" onClick={saveSchedule}>Сохранить график</Button>
             <Button size="sm" variant="ghost" onClick={() => { setDraft(step.stages); setStartDateDraft(step.startDate || iso(new Date())); setEditing(false); }}>Отмена</Button>
           </div>
-          <p className="text-[11px] text-muted-foreground">Пустое поле недель — этап без ограничения. От выбранной первой даты приложение само рассчитывает следующие применения по этапам.</p>
+          {startDateDraft && (
+            <div className="rounded-2xl bg-card/75 p-3">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                  <CalendarDays className="h-3.5 w-3.5" />
+                  Предпросмотр графика
+                </div>
+                <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">90 дней</span>
+              </div>
+              <div className="space-y-2.5">
+                {Object.entries(previewMonths).map(([month, dates]) => (
+                  <div key={month}>
+                    <div className="mb-1 text-[11px] font-medium capitalize text-muted-foreground">{month}</div>
+                    <div className="flex flex-wrap gap-1">
+                      {dates.map((value) => (
+                        <span key={value} className="rounded-full bg-accent/45 px-2 py-1 text-[11px] font-medium">
+                          {new Date(`${value}T00:00:00`).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">После сохранения календарь продолжит рассчитывать применения автоматически и дальше, без ограничения тремя месяцами.</p>
+            </div>
+          )}
+          <p className="text-[11px] text-muted-foreground">Пустое поле недель — этап без ограничения. Новый этап начинается сразу после окончания предыдущего и заново отсчитывает частоту от своей первой даты.</p>
         </div>
       )}
 

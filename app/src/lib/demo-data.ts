@@ -154,12 +154,17 @@ export const FREQ_LABEL: Record<string, string> = {
   "5": "5 раз в неделю",
 };
 
-const WEEK_DAYS: Record<number, number[]> = {
-  1: [3],
-  2: [1, 4],
-  3: [1, 3, 5],
-  4: [1, 3, 5, 0],
-  5: [1, 2, 3, 4, 5],
+/**
+ * Смещения внутри каждой 7-дневной недели относительно первой даты применения.
+ * Так выбранная специалистом дата всегда является первым применением, независимо
+ * от дня недели. Интервалы распределены максимально равномерно.
+ */
+const WEEK_OFFSETS: Record<number, number[]> = {
+  1: [0],
+  2: [0, 3],
+  3: [0, 2, 4],
+  4: [0, 2, 4, 6],
+  5: [0, 1, 3, 4, 6],
 };
 
 const parse = (s: string) => {
@@ -168,19 +173,40 @@ const parse = (s: string) => {
 };
 const diffDays = (a: Date, b: Date) => Math.round((a.getTime() - b.getTime()) / 86400000);
 
-/** Текущий этап графика на дату (или null, если ещё не начат). */
-export function stageOn(step: Step, date: Date): { stage: Stage; index: number } | null {
-  if (step.stages.length === 0) return { stage: { freq: "daily", weeks: null }, index: 0 };
+const addDays = (date: Date, amount: number) => {
+  const next = new Date(date);
+  next.setDate(next.getDate() + amount);
+  return next;
+};
+const positiveMod = (value: number, divisor: number) => ((value % divisor) + divisor) % divisor;
+
+/** Текущий этап графика на дату (или null, если первая дата применения ещё не наступила). */
+export function stageOn(step: Step, date: Date): { stage: Stage; index: number; stageStart: Date } | null {
   const start = parse(step.startDate);
-  let d = diffDays(date, start);
-  if (d < 0) return null;
+  let remaining = diffDays(date, start);
+  if (remaining < 0) return null;
+
+  if (step.stages.length === 0) {
+    return { stage: { freq: "daily", weeks: null }, index: 0, stageStart: start };
+  }
+
+  let elapsed = 0;
   for (let i = 0; i < step.stages.length; i++) {
     const st = step.stages[i]!;
-    if (st.weeks === null || d < st.weeks * 7) return { stage: st, index: i };
-    d -= st.weeks * 7;
+    const length = st.weeks === null ? null : st.weeks * 7;
+    if (length === null || remaining < length) {
+      return { stage: st, index: i, stageStart: addDays(start, elapsed) };
+    }
+    remaining -= length;
+    elapsed += length;
   }
-  const last = step.stages.length - 1;
-  return { stage: step.stages[last]!, index: last };
+
+  // Если у последнего этапа по ошибке указана длительность, после неё продолжаем
+  // тот же режим без ограничения, а не обрываем график.
+  const lastIndex = step.stages.length - 1;
+  const last = step.stages[lastIndex]!;
+  const lastLength = last.weeks === null ? 0 : last.weeks * 7;
+  return { stage: last, index: lastIndex, stageStart: addDays(start, Math.max(0, elapsed - lastLength)) };
 }
 
 export function appliesOn(step: Step, date: Date): boolean {
@@ -192,12 +218,16 @@ export function appliesOn(step: Step, date: Date): boolean {
     if (sc.mode === "days") return (sc.days ?? []).includes(date.getDay());
     return (sc.dates ?? []).includes(iso(date));
   }
-  const s = stageOn(step, date);
-  if (!s) return false;
-  const f = s.stage.freq;
-  if (f === "daily") return true;
-  if (f === "every_other") return diffDays(date, parse(step.startDate)) % 2 === 0;
-  return (WEEK_DAYS[f] ?? []).includes(date.getDay());
+
+  const current = stageOn(step, date);
+  if (!current) return false;
+
+  const offset = diffDays(date, current.stageStart);
+  const freq = current.stage.freq;
+  if (freq === "daily") return true;
+  if (freq === "every_other") return positiveMod(offset, 2) === 0;
+
+  return (WEEK_OFFSETS[freq] ?? []).includes(positiveMod(offset, 7));
 }
 
 export function describeStages(stages: Stage[]) {

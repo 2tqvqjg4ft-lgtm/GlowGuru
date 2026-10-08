@@ -352,24 +352,21 @@ function StepEditor({
         <div className="mt-3 space-y-2 rounded-2xl bg-accent/25 p-3 animate-scale-in">
           <p className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Этапы введения</p>
           <div className="rounded-2xl bg-card/80 p-3">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Первая дата применения</p>
-                <p className="mt-1 text-sm font-semibold capitalize">{humanDate(startDateDraft)}</p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">Эта дата станет точкой отсчёта всего графика.</p>
-              </div>
-              <label className="relative inline-flex h-9 cursor-pointer items-center gap-2 overflow-hidden rounded-full border border-input bg-background px-3 text-xs font-medium shadow-sm">
-                <CalendarDays className="h-3.5 w-3.5" />
-                Изменить дату
-                <input
+            <label className="block">
+              <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Первая дата применения</span>
+              <div className="mt-2 flex items-center gap-2">
+                <CalendarDays className="h-4 w-4 shrink-0 text-secondary" />
+                <Input
                   type="date"
                   value={startDateDraft}
                   onChange={(e) => setStartDateDraft(e.target.value)}
                   aria-label="Первая дата применения"
-                  className="absolute inset-0 cursor-pointer opacity-0"
+                  className="h-11 w-full bg-background text-base"
                 />
-              </label>
-            </div>
+              </div>
+            </label>
+            <p className="mt-2 text-sm font-semibold capitalize">{humanDate(startDateDraft)}</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">Выбранная дата будет первым нанесением и точкой отсчёта всего графика.</p>
           </div>
           {draft.map((st, i) => (
             <div key={i} className="flex flex-wrap items-center gap-2">
